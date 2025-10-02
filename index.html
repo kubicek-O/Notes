@@ -88,6 +88,8 @@
       <button type="submit">Odeslat</button>
     </form>
     <p id="error" style="color:#ff6b6b; display:none; margin-top:8px;">Špatný kód!</p>
+    <p id="error" style="color:#ff6b6b; display:none; margin-top:8px;">Zkus to znova!</p>
+    <p id="error" style="color:#ff6b6b; display:none; margin-top:8px;">Už nemáš moc pokusů!</p>
   </div>
 
   <!-- Skrytý obsah stránky – BEZ vnořeného doctype/html/head/body -->
@@ -198,21 +200,19 @@
       </main>
 
       <aside>
-        <div class="card">
-          <h3 id="galerie">Galerie soutěžních modelů</h3>
-          <p style="color:var(--muted)">Klikni na náhled pro zobrazení detailu.</p>
-          <div class="gallery">
-            <div class="thumb">
-              <video controls width="20">
-              <source src="rozjeti-stirlingova-motoru-2025.mp4" type="video/mp4">
-              <button type="button" aria-label="Zvětšit obrázek Model 1" data-full="images/IMG_2349.jpg"></button>
-            </div>
-              <video controls width="20">
-                <source src="rozjeti-stirlingova-motoru-2025.mp4" type="video/mp4">
-                Váš prohlížeč nepodporuje přehrávání videa.
-              </video>
-          </div>
-        </div>
+<div class="card">
+  <h3 id="galerie">Galerie soutěžních modelů</h3>
+  <p style="color:var(--muted)">Klikni na náhled pro zobrazení detailu.</p>
+  <div class="gallery">
+    <div class="thumb">
+      <video width="200" controls>
+        <source src="rozjeti-stirlingova-motoru-2025.mp4" type="video/mp4">
+        Váš prohlížeč nepodporuje video tag.
+      </video>
+      <button type="button" aria-label="Přehrát video Rozjetí Stirlingova motoru 2025" data-full="rozjeti-stirlingova-motoru-2025.mp4"></button>
+    </div>
+  </div>
+</div>
 
         <div class="card" style="margin-top:16px">
           <h3>Animace</h3>
