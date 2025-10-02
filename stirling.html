@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Soutěž: Vyrob si svůj Stirlingův motor</title>
+  <meta name="description" content="Stránka o soutěži Vyrob si svůj Stirlingův motor: pravidla, tipy, historie i princip fungování motoru." />
+  <meta name="theme-color" content="#0f1724" />
+
+  <!-- Sjednocené styly -->
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#ffb86b;--muted:#94a3b8;--glass:rgba(255,255,255,0.03);--radius:14px}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+    body{font-family:Inter, Roboto, Arial, sans-serif;margin:0;background:linear-gradient(180deg,#071029 0%, #0f1724 100%);color:#e6eef8;line-height:1.5}
+
+    /* Login brána */
+    #gate{padding:40px;text-align:center}
+    input,button{padding:8px;border-radius:6px;border:1px solid #ccc}
+    button{background:#ffb86b;border:0;font-weight:bold;cursor:pointer}
+
+    /* Skrytý obsah */
+    #protected{display:none}
+
+    /* Layout stránky uvnitř #protected */
+    .wrap{max-width:1100px;margin:32px auto;padding:20px;display:grid;grid-template-columns:1fr 320px;grid-template-areas:'header header' 'nav nav' 'main aside' 'footer footer';gap:24px}
+    header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;grid-area:header}
+    h1{margin:0;font-size:2.2rem}
+    .lead{color:var(--muted);margin-top:6px}
+    .topnav{grid-area:nav;margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(11,18,32,0.9),rgba(11,18,32,0));backdrop-filter:blur(6px);padding:8px;border-radius:12px}
+    .topnav a{padding:8px 12px;border-radius:10px;background:var(--glass);text-decoration:none;color:#e6eef8;transition:background .2s}
+    .topnav a:hover{background:rgba(255,255,255,0.08)}
+    .topnav a[aria-current="page"]{background:var(--accent);color:#082032;font-weight:700}
+    main{grid-area:main}
+    aside{grid-area:aside;align-self:start}
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 6px 24px rgba(2,6,23,0.6);transition:transform .2s ease, box-shadow .2s ease}
+    .card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(2,6,23,0.8)}
+    .intro{background:var(--glass);padding:14px;border-radius:12px;color:#dbeafe}
+    .step{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:12px;border-radius:10px;margin-top:8px;transition:background .2s}
+    .step:hover{background:rgba(255,255,255,0.06)}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    td,th{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:left}
+    th{color:var(--muted);font-weight:600}
+
+    footer{margin-top:28px;text-align:center;color:var(--muted);font-size:0.9rem;grid-area:footer}
+
+    a{color:#ffd6a8}
+    a:hover{opacity:0.9}
+    .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip:focus{position:static;width:auto;height:auto;padding:8px 12px;background:#111827;border-radius:10px}
+
+    /* Galerie */
+    .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .thumb{position:relative;isolation:isolate;border-radius:8px;overflow:hidden;background:#1c2535;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:0.95;transition:transform .25s ease, opacity .25s ease}
+    .thumb:hover img,.thumb:focus-within img{transform:scale(1.05);opacity:1}
+    .thumb button{position:absolute;inset:0;border:0;background:transparent;cursor:pointer}
+    .thumb button:focus-visible{outline:2px solid rgba(255,255,255,0.35);outline-offset:2px}
+
+    /* Lightbox */
+    .lightbox{position:fixed;inset:0;display:grid;place-items:center;background:rgba(2,6,23,0.7);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s ease}
+    .lightbox.open{opacity:1;pointer-events:auto}
+    .lightbox__img{max-width:min(92vw,1100px);max-height:86vh;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.6);transform:scale(.96);transition:transform .25s ease}
+    .lightbox.open .lightbox__img{transform:scale(1)}
+    .lightbox__close{position:fixed;top:16px;right:16px;background:#0b1220;border:1px solid rgba(255,255,255,0.12);color:#e6eef8;border-radius:12px;padding:8px 12px;cursor:pointer}
+
+    /* To-top */
+    .totop{position:fixed;right:16px;bottom:16px;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:999px;background:#0b1220;border:1px solid rgba(255,255,255,0.15);color:#e6eef8;text-decoration:none;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .25s ease, transform .25s ease}
+    .totop.show{opacity:1;transform:translateY(0);pointer-events:auto}
+
+    /* Print */
+    @media print{
+      body{background:#fff;color:#000}
+      .topnav,aside,.lightbox,.totop{display:none!important}
+      .card{box-shadow:none;border:1px solid #ddd}
+      a:after{content:" (" attr(href) ")";font-size:.8em}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brána s kódem -->
+  <div id="gate">
+    <h2>Stránka je chráněná</h2>
+    <form onsubmit="checkCode(event)">
+      <input id="code" type="password" placeholder="Zadej kód" required>
+      <button type="submit">Odeslat</button>
+    </form>
+    <p id="error" style="color:#ff6b6b; display:none; margin-top:8px;">Špatný kód!</p>
+  </div>
+
+  <!-- Skrytý obsah stránky – BEZ vnořeného doctype/html/head/body -->
+  <div id="protected" aria-hidden="true">
+    <a class="skip" href="#obsah">Přeskočit na obsah</a>
+
+    <div class="wrap">
+      <header>
+        <h1>Soutěž: Vyrob si svůj Stirlingův motor</h1>
+        <div class="lead">Pravidla, tipy, historie i princip fungování motoru.</div>
+      </header>
+
+      <nav class="topnav" aria-label="Hlavní navigace">
+        <a href="#obsah" aria-current="page">O soutěži</a>
+        <a href="#galerie">Galerie</a>
+        <a href="#odkazy">Odkazy</a>
+        <a href="#videa">Videa</a>
+        <a href="#dokumenty">Dokumenty</a>
+        <a href="#tabulka">Tabulka</a>
+      </nav>
+
+      <main id="obsah">
+        <article class="card intro">
+          <h2>Co je Stirlingův motor?</h2>
+          <p>Stirlingův motor je tepelný stroj využívající uzavřený pracovní plyn. Níže najdeš shrnutí výhod a nevýhod, jednoduchou ilustraci cyklu a technickou tabulku.</p>
+        </article>
+
+        <article class="card">
+          <h2>Výhody a nevýhody</h2>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div class="step" style="flex:1;min-width:200px">
+              <h3>Výhody</h3>
+              <ul>
+                <li>Tichý provoz</li>
+                <li>Možnost využít různé zdroje tepla</li>
+                <li>Jednoduchá ukázka fyzikálních principů</li>
+              </ul>
+            </div>
+            <div class="step" style="flex:1;min-width:200px">
+              <h3>Nevýhody</h3>
+              <ul>
+                <li>Nižší výkon než spalovací motor</li>
+                <li>Náročnost na těsnění a přesnost</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" style="margin-top:12px">
+          <h2>Ukázková ilustrace</h2>
+          <p>Jednoduchý princip cyklu motoru:</p>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+            <svg width="140" height="80" viewBox="0 0 140 80" aria-hidden="true">
+              <rect x="6" y="10" width="128" height="60" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.04)"/>
+              <g>
+                <rect x="24" y="28" width="40" height="24" rx="6" fill="#ffd8b3" stroke="#ffb86b"/>
+                <rect x="84" y="18" width="36" height="44" rx="6" fill="#cde7ff" stroke="#7fbfff"/>
+              </g>
+            </svg>
+            <div style="color:var(--muted)">Teplo → expanze → práce → chlazení.</div>
+          </div>
+        </article>
+
+        <article class="card" style="margin-top:12px">
+          <h2 id="tabulka">Technická tabulka</h2>
+          <table>
+            <tr><th>Parametr</th><th>Příklad</th></tr>
+            <tr><td>Pracovní plyn</td><td>Vzduch / Helium</td></tr>
+            <tr><td>Rozsah teplot</td><td>200–800&nbsp;°C</td></tr>
+            <tr><td>Účinnost</td><td>Až blízko Carnotově limitu</td></tr>
+          </table>
+        </article>
+
+        <div class="card" style="margin-top:16px">
+          <h3 id="odkazy">Odkazy</h3>
+          <ul style="color:var(--muted);margin-top:8px">
+            <li><a href="https://stirlinguv-motor-soutez.cz" target="_blank" rel="noopener noreferrer">Oficiální stránky soutěže</a></li>
+            <li><a href="https://cs.wikipedia.org/wiki/Stirling%C5%AFv_motor" target="_blank" rel="noopener noreferrer">Wikipedia: Stirlingův motor</a></li>
+            <li><a href="https://www.stirling-fette.de/howdo.htm" target="_blank" rel="noopener noreferrer">Stirling-Fette: How does it work</a></li>
+            <li><a href="https://www.eon.cz/energy-globe/minule-rocniky/soutez-vyrob-si-svuj-stirlinguv-motor/" target="_blank" rel="noopener noreferrer">Eon o soutěži</a></li>
+            <li><a href="https://fyzweb.cz/clanky/index.php?id=195" target="_blank" rel="noopener noreferrer">FyzWeb</a></li>
+            <li><a href="https://www.ntm.cz/archiv-clanku/752013-vyrob-si-svuj-stirlinguv-motor" target="_blank" rel="noopener noreferrer">NTM</a></li>
+            <li><a href="https://www.ntm.cz/archiv-clanku/soutez-vyrob-si-svuj-parni-motor" target="_blank" rel="noopener noreferrer">NTM - 2</a></li>
+            <li><a href="http://stirlingmotor.cz/princip.html" target="_blank" rel="noopener noreferrer">Stirling motor CZ</a></li>
+            <li><a href="https://www.printables.com/model/882323-jednoduchy-stirlinguv-motor" target="_blank" rel="noopener noreferrer">3D tisk Jirka Luftner</a></li>
+            <li><a href="https://www.spstrutnov.cz/novinky/36-souteze/v-soutezi-postav-si-svuj-stirlinguv-motor-v-praze-nasi-zaci-na-bedne" target="_blank" rel="noopener noreferrer">SPŠ Trutnov</a></li>
+            <li><a href="https://www.spstrutnov.cz/novinky/36-souteze/zvitezili-jsme-v-1-kole-souteze-narodniho-technickeho-muzea-stirlinguv-motor-2019" target="_blank" rel="noopener noreferrer">SPŠ Trutnov</a></li>
+            <li><a href="https://www.novinky.cz/clanek/vase-zpravy-celostatni-soutez-pro-stredoskolaky-vyrob-si-svuj-stirlinguv-motor-40134484" target="_blank" rel="noopener noreferrer">Novinky CZ</a></li>
+            <li><a href="https://www.redrok.com/engine.htm#stirling" target="_blank" rel="noopener noreferrer">Heat Engine Projects.</a></li>
+            <li><a href="https://www.facebook.com/watch/?v=696775240935730" target="_blank" rel="noopener noreferrer">Facebook - Animace chodu motoru</a></li>
+            <li><a href="http://e-skola.zolta.cz/stirlinguv-motor/" target="_blank" rel="noopener noreferrer">Stirlingův motor - škola hrou</a></li>
+            <li><a href="https://www.facebook.com/gymsosmb/posts/vyrob-si-svůj-stirlingův-motor-%EF%B8%8F-filip-a-honza-s-tondou-se-zúčastnili-konstrukčn/1245954714196315/" target="_blank" rel="noopener noreferrer">Facebook -  Gymnázium, SOŠ Moravské Budějovice</a></li>
+            <li><a href="https://www.muzeum-plasy.cz/pro-navstevniky/aktuality/18-rocnik-souteze-ntm-stirlinguv-motor" target="_blank" rel="noopener noreferrer">Muzeum Plasy</a></li>
+            <li><a href="https://vyuka-4-0.cz/stirlingovy-motory/" target="_blank" rel="noopener noreferrer">vyuka stirlingovy motory</a></li>
+            <li><a href="https://www.facebook.com/SSESP10/posts/19-ročník-soutěže-vyrob-si-svůj-stirllingův-motorprvní-kolo-soutěže-proběhlo-304/1273336614795061/" target="_blank" rel="noopener noreferrer">Facebook - První kolo soutěže  30.4.2025</a></li>
+            <li><a href="https://www.facebook.com/gchdopplera/posts/náš-tým-p-und-k-aus-6m-se-právě-účastní-finále-soutěže-vyrob-si-svůj-stirlingův-/1247868790675512/" target="_blank" rel="noopener noreferrer">Facebook soutěžní rok 2025 Gymnázium Christiana Dopplera</a></li>
+            <li><a href="https://www.hkp.cz/aktuality/269-cz-vyrob-si-svuj-stirlinguv-motor" target="_blank" rel="noopener noreferrer">Zprávy a Novinky</a></li>
+            <li><a href="https://www.spstrplz.cz/vyhledavani?do-search=hledat&q=sterlingu+motor" target="_blank" rel="noopener noreferrer">Střední průmyslová škola strojnická a Střední odborná škola profesora Švejcara, Plzeň</a></li>
+            <li><a href="https://www.spstrplz.cz/o-skole/aktuality/nejrychlejsi-stirlinguv-motor-se-opet-toci-v-plzni" target="_blank" rel="noopener noreferrer">jirka luftner 2025</a></li>
+            <li><a href="https://www.spstrplz.cz/o-skole/aktuality/nejrychlejsi-stirlinguv-motor-je-u-nas" target="_blank" rel="noopener noreferrer">jirka luftner 2024</a></li>
+            <li><a href="https://www.spstrplz.cz/o-skole/aktuality/uspesny-vstup-do-soutezi" target="_blank" rel="noopener noreferrer">jirka luftner 2024 - prvni kolo soutěže</a></li>
+            <li><a href="http://www.zelenezpravy.cz/stirlinguv-motor-–-historie-princip-a-jeho-vyuziti-pri-kogeneraci/" target="_blank" rel="noopener noreferrer">zelené zprávy</a></li>
+            <li><a href="https://www.facebook.com/vojenskaskola/posts/-postav-si-svůj-stirlingův-motor-a-vyhraj-naši-žáci-se-opět-neztratili-na-začátk/1262434569037517/" target="_blank" rel="noopener noreferrer">Facebook - VSŠ a VOŠ MO v Moravské Třebové</a></li>
+            <li><a href="http://fyzikalnipokusy.cz/1875/stirlinguv-stroj" target="_blank" rel="noopener noreferrer">Fyzikálni pokusy</a></li>
+            <li><a href="https://vyuka-4-0.cz/rekord-je-na-trebesine/" target="_blank" rel="noopener noreferrer">Rekord je na Třebešíně</a></li>
+          </ul>
+        </div>
+      </main>
+
+      <aside>
+        <div class="card">
+          <h3 id="galerie">Galerie soutěžních modelů</h3>
+          <p style="color:var(--muted)">Klikni na náhled pro zobrazení detailu.</p>
+          <div class="gallery">
+            <div class="thumb">
+              <img src="images/IMG_2349.jpg" alt="Model 1" loading="lazy">
+              <button type="button" aria-label="Zvětšit obrázek Model 1" data-full="images/IMG_2349.jpg"></button>
+            </div>
+            <div class="thumb">
+              <img src="images/71kqRgpvhUL.jpg" alt="Model 2" loading="lazy">
+              <button type="button" aria-label="Zvětšit obrázek Model 2" data-full="images/71kqRgpvhUL.jpg"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h3>Animace</h3>
+          <img src="images/Low_Temperatur_Difference_Stirling_engine_Animation.gif" alt="Animace chodu Stirlingova motoru" style="width:100%;border-radius:12px;max-height:220px;object-fit:contain" loading="lazy">
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h3 id="videa">Videa</h3>
+          <ul style="color:var(--muted);margin-top:8px">
+            <li><a href="https://www.youtube.com/watch?v=vTB73zEn6cE" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor (7.5.2013)</a></li>
+            <li><a href="https://www.youtube.com/watch?v=zeRO4c-gu5Y&t=18s" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor 2025 - učebna NTM</a></li>
+            <li><a href="https://www.youtube.com/watch?v=pJhS6b_pEqE" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor finále 2025</a></li>
+            <li><a href="https://www.youtube.com/watch?v=qsJRNQMY6e4" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor Adam</a></li>
+            <li><a href="https://www.youtube.com/watch?v=-XwWipp2EjY" target="_blank" rel="noopener noreferrer">YouTube: How They Work and Building One </a></li>
+            <li><a href="https://www.youtube.com/watch?v=RRVoFtgcMLk" target="_blank" rel="noopener noreferrer">YouTube: Stirlinguv motor</a></li>
+            <li><a href="https://www.youtube.com/watch?v=o2yiDgK0fMo" target="_blank" rel="noopener noreferrer">YouTube: Stirlingův motor</a></li>
+            <li><a href="https://www.youtube.com/watch?v=R4R41SOnRzE" target="_blank" rel="noopener noreferrer">YouTube: Parní motor </a></li>
+            <li><a href="https://www.youtube.com/watch?v=GWVtQLZHkNk" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor 2017</a></li>
+            <li><a href="https://www.youtube.com/watch?v=qackQ8m9nfI" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor</a></li>
+            <li><a href="https://www.youtube.com/watch?v=f-NrnoMxdNo" target="_blank" rel="noopener noreferrer">YouTube: Soutěžní motor Finále 2012</a></li>
+            <li><a href="https://www.youtube.com/watch?v=eilQ1o0uGN4" target="_blank" rel="noopener noreferrer">YouTube: Studentská soutež</a></li>
+            <li><a href="https://www.youtube.com/watch?v=NuUPaXwcLLo" target="_blank" rel="noopener noreferrer">YouTube: Národni Technické Muzeum 2011</a></li>
+            <li><a href="https://www.youtube.com/watch?v=JiqTekCSOFQ" target="_blank" rel="noopener noreferrer">YouTube: Národni Technické Muzeum 2012</a></li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h3 id="dokumenty">Dokumenty (PDF)</h3>
+          <p>PDF ke stažení (ulož do složky <code>pdf/</code> v repozitáři):</p>
+          <ul>
+            <li><a href="https://www.hydrocom.cz/images/4A-CAD-STIRLING-PROTOKOL-S-GRAFIKOU.pdf" target="_blank" rel="noopener noreferrer">Ročníkový Projekt</a></li>
+            <li><a href="https://stretech.fs.cvut.cz/2013/sbornik_2013/74.pdf" target="_blank" rel="noopener noreferrer">SPŠS Betlémská</a></li>
+            <li><a href="http://stretech.fs.cvut.cz/2010/sbornik_2010/pdf/1143.pdf" target="_blank" rel="noopener noreferrer">Proč „ANO“ nebo „NE“ Stirlingův motor</a></li>
+            <li><a href="https://kdf.mff.cuni.cz/tabor_old/2010/odborny/Stirlinguv_motor.pdf" target="_blank" rel="noopener noreferrer">Stirlingův motor</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <footer>
+        <div>© 2025 Soutěž Vyrob si svůj Stirlingův motor • Stránku vytvořil Oskar Kubíček</div>
+      </footer>
+    </div> <!-- /.wrap -->
+
+    <!-- Lightbox overlay -->
+    <div class="lightbox" role="dialog" aria-modal="true" aria-label="Zvětšená fotografie" hidden>
+      <img class="lightbox__img" alt="Zvětšená fotografie" src="" />
+      <button class="lightbox__close" type="button" aria-label="Zavřít (Esc)">Zavřít ✕</button>
+    </div>
+
+    <a class="totop" href="#" aria-label="Zpět nahoru">↑</a>
+  </div> <!-- /#protected -->
+
+  <!-- Skripty -->
+  <script>
+    // ====== Přístupový kód ======
+    const ACCESS_CODE = "1234";
+
+    function checkCode(e){
+      e.preventDefault();
+      const code = document.getElementById("code").value.trim();
+      const error = document.getElementById("error");
+      if(code === ACCESS_CODE){
+        document.getElementById("gate").style.display = "none";
+        const protectedEl = document.getElementById("protected");
+        protectedEl.style.display = "block";
+        protectedEl.setAttribute("aria-hidden","false");
+        error.style.display = "none";
+      }else{
+        error.style.display = "block";
+      }
+    }
+
+    // ====== Lightbox ======
+    (function(){
+      const box = document.querySelector('.lightbox');
+      if(!box) return;
+      const img = box.querySelector('.lightbox__img');
+      const closeBtn = box.querySelector('.lightbox__close');
+      let lastTrigger = null;
+
+      function open(src, trigger){
+        lastTrigger = trigger || null;
+        img.src = src; box.hidden = false;
+        requestAnimationFrame(()=> box.classList.add('open'));
+        closeBtn.focus({preventScroll:true});
+        document.addEventListener('keydown', onKey);
+      }
+      function close(){
+        box.classList.remove('open');
+        document.removeEventListener('keydown', onKey);
+        setTimeout(()=>{ box.hidden = true; img.src=''; if(lastTrigger) lastTrigger.focus(); }, 180);
+      }
+      function onKey(e){ if(e.key==='Escape') close(); }
+      box.addEventListener('click', e=>{ if(e.target===box) close(); });
+      closeBtn.addEventListener('click', close);
+
+      document.addEventListener('click', (e)=>{
+        const btn = e.target.closest('.gallery .thumb button');
+        if(btn){
+          const full = btn.getAttribute('data-full');
+          if(full){ open(full, btn); }
+        }
+      });
+    })();
+
+    // ====== Back-to-top ======
+    (function(){
+      const t = document.querySelector('.totop');
+      if(!t) return;
+      const onscroll = ()=>{ if(window.scrollY>420){ t.classList.add('show'); } else { t.classList.remove('show'); } };
+      window.addEventListener('scroll', onscroll, {passive:true}); onscroll();
+    })();
+  </script>
+</body>
+</html>
